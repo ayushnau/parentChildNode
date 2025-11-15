@@ -1,16 +1,164 @@
-# React + Vite
+# File & Folder Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, performant file and folder tree structure manager built with React. Create, organize, and manage nested folders and files with an intuitive UI.
 
-Currently, two official plugins are available:
+![React](https://img.shields.io/badge/React-19.2.0-61DAFB?logo=react)
+![Vite](https://img.shields.io/badge/Vite-7.2.2-646CFF?logo=vite)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- 📁 **Nested Folder Structure** - Create unlimited nested folders and files
+- 🎨 **Modern UI** - Beautiful, responsive design with smooth animations
+- ⚡ **High Performance** - Optimized with React.memo, useCallback, and path-based updates
+- 🔄 **Expand/Collapse** - Toggle folder visibility with a single click
+- 🚀 **Fast Updates** - O(depth) complexity for tree updates using path-based algorithms
+- 📱 **Responsive Design** - Works seamlessly on desktop and mobile devices
+- 🎯 **Zero Dependencies** - Pure React implementation, no external UI libraries
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+- **React 19.2.0** - UI library
+- **Vite 7.2.2** - Build tool and dev server
+- **React Context API** - State management without prop drilling
+- **CSS3** - Modern styling with gradients and animations
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+ and npm/yarn/pnpm
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <your-repo-url>
+cd parentchildstructure
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the development server:
+```bash
+npm run dev
+```
+
+4. Open your browser and navigate to `http://localhost:5173`
+
+## 📖 Usage
+
+1. **Add a Folder**: Click the "+ 📁" button on any folder to add a new subfolder
+2. **Add a File**: Click the "+ 📄" button on any folder to add a new file
+3. **Expand/Collapse**: Click the chevron (▶) icon to expand or collapse folders
+4. **Nested Structure**: Create unlimited levels of nested folders and files
+
+## 🏗️ Project Structure
+
+```
+parentchildstructure/
+├── src/
+│   ├── App.jsx          # Main application component
+│   ├── App.css          # Application styles
+│   ├── main.jsx         # Application entry point
+│   └── index.css        # Global styles
+├── public/              # Static assets
+├── vercel.json          # Vercel deployment configuration
+└── package.json         # Project dependencies
+```
+
+## ⚡ Performance Optimizations
+
+This project implements several performance optimizations:
+
+- **React.memo** - Prevents unnecessary re-renders of tree nodes
+- **useCallback** - Stable function references to maintain memoization
+- **Context API** - Eliminates prop drilling for better performance
+- **Path-based Updates** - O(depth) complexity instead of O(n) for tree updates
+- **Lazy Path Computation** - Paths computed only when needed, not stored in memory
+
+### Update Complexity
+
+- **Before**: O(n) - Traversed entire tree for every update
+- **After**: O(depth) - Only updates nodes along the path
+
+## 🚢 Deployment
+
+### Deploy to Vercel
+
+1. Push your code to GitHub
+2. Import your repository on [Vercel](https://vercel.com)
+3. Vercel will auto-detect Vite and deploy automatically
+
+The project includes a `vercel.json` configuration for SPA routing.
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+The production build will be in the `dist` directory.
+
+### Preview Production Build
+
+```bash
+npm run preview
+```
+
+## 🧪 Development
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+## 📝 Code Architecture
+
+### Core Components
+
+- **TreeNode** - Memoized component for rendering tree nodes
+- **TreeContext** - Context provider for tree state and callbacks
+- **updateTreeByPath** - Path-based tree update function
+
+### Key Functions
+
+- `updateTreeByPath(tree, path, updater)` - Updates tree using path array
+- `generateId()` - Generates unique IDs for nodes
+- `handleAddFolderOrFile(path, type)` - Adds new folder or file
+- `handleToggleExpand(path, e)` - Toggles folder expand/collapse state
+
+## 🎨 UI Features
+
+- Gradient background with modern color scheme
+- Smooth hover effects and transitions
+- Icon-based visual hierarchy (📁 folders, 📄 files)
+- Responsive button actions that appear on hover
+- Visual indentation for nested levels
+
+## 🔮 Future Enhancements
+
+- [ ] Rename folders and files
+- [ ] Delete folders and files
+- [ ] Drag and drop reordering
+- [ ] Search functionality
+- [ ] Export/Import tree structure
+- [ ] Persist state to localStorage
+- [ ] Dark mode toggle
+
+## 📄 License
+
+MIT License - feel free to use this project for learning or commercial purposes.
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+
+---
+
+Built with ❤️ using React and Vite
