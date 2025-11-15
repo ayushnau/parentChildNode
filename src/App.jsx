@@ -93,11 +93,12 @@ const TreeContext = createContext(null);
 // Uses closure-based path builder - path is only computed when needed (on click), not stored in memory
 const TreeNode = memo(({ tree, depth = 0, getPath = () => [] }) => {
   // Get callbacks from context
-  const { onAddFolderOrFile, onToggleExpand } = useContext(TreeContext);
+  const { onAddFolderOrFile, onToggleExpand,onCheckToggle } = useContext(TreeContext);
   
   const isFolder = tree.type === "folder";
   const isFile = tree.type === "file";
   const isExpanded = tree.value;
+  const isChecked = tree.isSelected;
 
   // Path is computed lazily only when button is clicked, not during render
   const handleToggle = (e) => {
@@ -115,6 +116,11 @@ const TreeNode = memo(({ tree, depth = 0, getPath = () => [] }) => {
     const path = getPath(); // Compute path only when needed
     onAddFolderOrFile(path, "file");
   };
+  const handleCheckToggle = (e) =>{
+    e.stopPropagation();
+    const path = getPath();
+    onCheckToggle(path, {target: {checked: !isChecked}});
+  }
 
   return (
     <div className="tree-node">
@@ -122,6 +128,7 @@ const TreeNode = memo(({ tree, depth = 0, getPath = () => [] }) => {
         {isFolder && (
           <div className="folder-container">
             <div className="folder-header">
+              <input type="checkbox" checked={isChecked} onChange={handleCheckToggle}/>
               <button 
                 className="expand-toggle"
                 onClick={handleToggle}
@@ -152,6 +159,7 @@ const TreeNode = memo(({ tree, depth = 0, getPath = () => [] }) => {
         )}
         {isFile && (
           <div className="file-container">
+            <input type="checkbox" checked={isChecked} onChange={handleCheckToggle} />
             <span className="file-icon">📄</span>
             <span className="file-name">File</span>
           </div>
@@ -179,7 +187,7 @@ TreeNode.displayName = 'TreeNode';
 
 function App() {
   // const [tree, setTree] = useState([{value: true, type: 'folder', child: null}])
-  const [tree, setTree] = useState({id: generateId() ,value: true, type: 'folder', child: null})
+  const [tree, setTree] = useState({id: generateId() ,isSelected: false, value: true, type: 'folder', child: null})
   
   useEffect(() =>{
     console.log(JSON.stringify(tree, null, 2))
@@ -192,7 +200,7 @@ function App() {
     setTree(currentTree => {
       return updateTreeByPath(currentTree, path, (node) => {
         // Add new child to this node
-        const newChild = { id: generateId(), value: true, type, child: null };
+        const newChild = { id: generateId(), isSelected: false, value: true, type, child: null };
         const childTree = node.child 
           ? [...node.child, newChild]
           : [newChild];
@@ -214,12 +222,68 @@ function App() {
     });
   }, []); // Empty deps - setTree is stable from useState
 
+
+  // Helper: Recursively check/uncheck all descendants
+  const updateAllDescendants = useCallback((node, checked) => {
+    if (!node.child || node.child.length === 0) {
+      return { ...node, isSelected: checked };
+    }
+    return {
+      ...node,
+      isSelected: checked,
+      child: node.child.map(child => updateAllDescendants(child, checked))
+    };
+  }, []);
+
+  // Path-based callback to toggle checkbox with parent-child propagation
+  const handleCheckToggle = useCallback((path, e) => {
+    const isChecked = e.target.checked;
+    
+    setTree(currentTree => {
+      // Step 1: Update the clicked node and all its descendants
+      let updatedTree = updateTreeByPath(currentTree, path, (node) => {
+        return updateAllDescendants(node, isChecked);
+      });
+
+      // Step 2: Update parents (propagate up the tree)
+      // If checking: check parent only if all siblings are checked
+      // If unchecking: always uncheck parent
+      let currentPath = [...path];
+      
+      while (currentPath.length > 0) {
+        // Get parent path (remove last index)
+        const parentPath = currentPath.slice(0, -1);
+        
+        updatedTree = updateTreeByPath(updatedTree, parentPath, (parentNode) => {
+          if (!parentNode.child || parentNode.child.length === 0) {
+            return parentNode;
+          }
+
+          if (isChecked) {
+            // If checking: parent should be checked only if ALL children are checked
+            const allChildrenChecked = parentNode.child.every(child => child.isSelected === true);
+            return { ...parentNode, isSelected: allChildrenChecked };
+          } else {
+            // If unchecking: always uncheck parent
+            return { ...parentNode, isSelected: false };
+          }
+        });
+
+        // Move up to next parent
+        currentPath = parentPath;
+      }
+
+      return updatedTree;
+    });
+  }, [updateAllDescendants]);
+
   // Memoized context value to prevent unnecessary re-renders of all consumers
   // Only recreates when callbacks change (callbacks are stable due to useCallback)
   const contextValue = useMemo(() => ({
     onAddFolderOrFile: handleAddFolderOrFile,
-    onToggleExpand: handleToggleExpand
-  }), [handleAddFolderOrFile, handleToggleExpand]);
+    onToggleExpand: handleToggleExpand,
+    onCheckToggle: handleCheckToggle
+  }), [handleAddFolderOrFile, handleToggleExpand, handleCheckToggle]);
 
   return (
     <TreeContext.Provider value={contextValue}>
@@ -234,3 +298,13 @@ function App() {
 }
 
 export default App
+
+
+
+
+
+// Can we do without DFS?? if yes
+// DFS approach will , go through every node and then update which is O(number of node). but this can be done without even using that using Path based update. which will only take O (height of tree)
+
+
+// https://www.linkedin.com/posts/ayush-nautiyal-947266177_parentchildstructure-activity-7395391500513206272-llTy?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAACnc28cB_08677jiJA_5ip5LEUSrtqdu1Jw
